@@ -1,30 +1,26 @@
 import { request } from './client';
 
-// Auth API
+// ================= AUTH API =================
 export const authApi = {
   login: (credentials) =>
-    request('/auth/login', {
+    request('/admin/login', {
       method: 'POST',
-      body: JSON.stringify(credentials),
+      body: credentials,
     }),
   logout: () => {
+    localStorage.removeItem('token');
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
   },
 };
 
-// Blog API
+// ================= BLOG API (Create, Read, Delete) =================
 export const blogApi = {
   getAll: () => request('/blogs'),
   create: (data) =>
     request('/blogs', {
       method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  update: (id, data) =>
-    request(`/blogs/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
+      body: data,
     }),
   delete: (id) =>
     request(`/blogs/${id}`, {
@@ -32,37 +28,27 @@ export const blogApi = {
     }),
 };
 
-// Franchise API
+// ================= FRANCHISE API (Create, Read, Delete) =================
 export const franchiseApi = {
-  getAll: () => request('/franchises'),
+  getAll: () => request('/franchise'),
   create: (data) =>
-    request('/franchises', {
+    request('/franchise', {
       method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  update: (id, data) =>
-    request(`/franchises/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
+      body: data,
     }),
   delete: (id) =>
-    request(`/franchises/${id}`, {
+    request(`/franchise/${id}`, {
       method: 'DELETE',
     }),
 };
 
-// Gallery API
+// ================= GALLERY API (Create, Read, Delete) =================
 export const galleryApi = {
   getAll: () => request('/gallery'),
   create: (data) =>
     request('/gallery', {
       method: 'POST',
-      body: JSON.stringify(data),
-    }),
-  update: (id, data) =>
-    request(`/gallery/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
+      body: data,
     }),
   delete: (id) =>
     request(`/gallery/${id}`, {
