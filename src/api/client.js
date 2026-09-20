@@ -1,5 +1,5 @@
 // src/config/client.js
-const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://littlecrayons-backend-jmmh.onrender.com/api';
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, '');
 
 export async function request(endpoint, options = {}) {
