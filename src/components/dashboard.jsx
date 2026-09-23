@@ -1,17 +1,35 @@
 /* eslint-disable no-unused-vars */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard({ onLogout }) {
   const navigate = useNavigate();
 
+  // 1. AUTH CHECK: Redirect if token is missing
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
+
+  // 2. LOGOUT HANDLER: Clear storage and redirect
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user');
+
     if (onLogout) {
       onLogout();
     } else {
       navigate('/login', { replace: true });
     }
   };
+
+  // Prevent flash before redirect
+  if (!localStorage.getItem('token')) {
+    return null;
+  }
 
   const modules = [
     {
@@ -51,7 +69,10 @@ export default function Dashboard({ onLogout }) {
           <h2 className="fw-bold mb-1 text-dark">Admin Console</h2>
           <p className="text-muted mb-0">Select an operational action to view, create, or update records.</p>
         </div>
-        <button className="btn btn-outline-danger btn-sm px-4 py-2 rounded-3 fw-semibold shadow-sm" onClick={handleLogout}>
+        <button
+          className="btn btn-outline-danger btn-sm px-4 py-2 rounded-3 fw-semibold shadow-sm"
+          onClick={handleLogout}
+        >
           <i className="bi bi-box-arrow-right me-1"></i> Sign Out
         </button>
       </div>

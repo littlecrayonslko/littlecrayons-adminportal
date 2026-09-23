@@ -1,26 +1,34 @@
-import { request } from './client';
+import { request } from '../api/client';
 
-// ================= AUTH API =================
 export const authApi = {
-  login: (credentials) =>
-    request('/admin/login', {
+  login: async (credentials) => {
+    const res = await request('/admin/login', {
       method: 'POST',
       body: credentials,
-    }),
+    });
+    if (res?.token) {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('isAuthenticated', 'true');
+      if (res.user) {
+        localStorage.setItem('user', JSON.stringify(res.user));
+      }
+    }
+    return res;
+  },
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
+    window.location.href = '/login';
   },
 };
 
-// ================= BLOG API (Create, Read, Delete) =================
 export const blogApi = {
   getAll: () => request('/blogs'),
-  create: (data) =>
+  create: (formData) =>
     request('/blogs', {
       method: 'POST',
-      body: data,
+      body: formData,
     }),
   delete: (id) =>
     request(`/blogs/${id}`, {
@@ -28,13 +36,12 @@ export const blogApi = {
     }),
 };
 
-// ================= FRANCHISE API (Create, Read, Delete) =================
 export const franchiseApi = {
   getAll: () => request('/franchise'),
-  create: (data) =>
+  create: (formData) =>
     request('/franchise', {
       method: 'POST',
-      body: data,
+      body: formData,
     }),
   delete: (id) =>
     request(`/franchise/${id}`, {
@@ -42,13 +49,12 @@ export const franchiseApi = {
     }),
 };
 
-// ================= GALLERY API (Create, Read, Delete) =================
 export const galleryApi = {
   getAll: () => request('/gallery'),
-  create: (data) =>
+  create: (formData) =>
     request('/gallery', {
       method: 'POST',
-      body: data,
+      body: formData,
     }),
   delete: (id) =>
     request(`/gallery/${id}`, {

@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,19 @@ export default function FranchiseManager({ onBack }) {
   const [image1, setImage1] = useState(null);
   const [image2, setImage2] = useState(null);
 
+  // 1. AUTH CHECK & INITIAL LOAD
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    // Token check: redirect if not authenticated
+    if (!token) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    loadInquiries();
+  }, [navigate]);
+
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -53,10 +66,6 @@ export default function FranchiseManager({ onBack }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadInquiries();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -97,7 +106,7 @@ export default function FranchiseManager({ onBack }) {
       await franchiseApi.create(payload);
 
       setSuccessMsg('Franchise inquiry submitted successfully!');
-      
+
       // Reset Form
       setFormData({
         applicant_name: '',
@@ -122,6 +131,11 @@ export default function FranchiseManager({ onBack }) {
       setSubmitting(false);
     }
   };
+
+  // 2. FLASH SCREEN GUARD: Prevent component render before redirect completes
+  if (!localStorage.getItem('token')) {
+    return null;
+  }
 
   return (
     <div className="container py-4">

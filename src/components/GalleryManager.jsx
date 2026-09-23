@@ -1,6 +1,7 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { galleryApi } from '../api/services';
 
 const PRESET_CATEGORIES = [
@@ -15,6 +16,8 @@ const PRESET_CATEGORIES = [
 ];
 
 export default function GalleryManager({ onBack }) {
+  const navigate = useNavigate();
+
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -26,6 +29,27 @@ export default function GalleryManager({ onBack }) {
   const [category, setCategory] = useState('General');
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
+
+  // 1. AUTH CHECK & INITIAL LOAD
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    // Token check: redirect if not authenticated
+    if (!token) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    loadGallery();
+  }, [navigate]);
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const loadGallery = async () => {
     try {
@@ -41,10 +65,6 @@ export default function GalleryManager({ onBack }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadGallery();
-  }, []);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -107,6 +127,11 @@ export default function GalleryManager({ onBack }) {
     }
   };
 
+  // 2. FLASH SCREEN GUARD: Prevent render before redirect
+  if (!localStorage.getItem('token')) {
+    return null;
+  }
+
   return (
     <div className="container py-4">
       {/* Header */}
@@ -114,7 +139,7 @@ export default function GalleryManager({ onBack }) {
         <div>
           <button 
             className="btn btn-outline-secondary btn-sm mb-2 d-inline-flex align-items-center gap-1"
-            onClick={onBack}
+            onClick={handleBack}
           >
             &larr; Back to Dashboard
           </button>

@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -21,6 +21,23 @@ export default function BlogManager() {
   const [body, setBody] = useState('');
   const [imageFile, setImageFile] = useState(null);
 
+  // 1. AUTH CHECK & INITIAL LOAD
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    // Agar user logged in nahi hai, seedha login page par redirect karo
+    if (!token) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    loadBlogs();
+
+    if (searchParams.get('action') === 'create' && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [searchParams, navigate]);
+
   const loadBlogs = async () => {
     try {
       setLoading(true);
@@ -35,21 +52,13 @@ export default function BlogManager() {
     }
   };
 
-  useEffect(() => {
-    loadBlogs();
-
-    if (searchParams.get('action') === 'create' && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [searchParams]);
-
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
     }
   };
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -65,7 +74,7 @@ const handleSubmit = async (e) => {
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('body', body.trim());
-      formData.append('image', imageFile); // backend: upload.single('image')
+      formData.append('image', imageFile);
 
       await blogApi.create(formData);
 
@@ -97,6 +106,11 @@ const handleSubmit = async (e) => {
       alert(err.message || 'Failed to delete blog.');
     }
   };
+
+  // Agar token exist nahi karta toh screen render hone se roko
+  if (!localStorage.getItem('token')) {
+    return null;
+  }
 
   return (
     <div className="container py-4">
